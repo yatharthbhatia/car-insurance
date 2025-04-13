@@ -45,7 +45,7 @@ export function MainNav() {
             <span className="font-bold text-xl">InsureClaim</span>
           </Link>
         </div>
-        <nav className="flex items-center space-x-1 flex-1">
+        <nav className="flex items-center space-x-3 flex-1 ">
           {routes.map((route) => (
             <Link
               key={route.href}
