@@ -20,7 +20,7 @@ import {
 
 export default function Dashboard() {
   return (
-    <div className="container mx-auto py-10 space-y-8">
+    <div className="container py-10 space-y-8">
       <div className="flex flex-col">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">Welcome to your insurance claims management dashboard.</p>
@@ -84,7 +84,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="col-span-3">
+            <Card className="col-span-4">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-medium">Quick Actions</h3>

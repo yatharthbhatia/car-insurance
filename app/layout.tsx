@@ -19,12 +19,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="min-h-screen flex flex-col">
             <MainNav />
-            <main className="flex-1 bg-muted/30">{children}</main>
+            <main className="flex-1 bg-muted/30 px-8">{children}</main>
           </div>
         </ThemeProvider>
       </body>

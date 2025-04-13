@@ -38,7 +38,7 @@ export function MainNav() {
 
   return (
     <div className="border-b bg-background">
-      <div className="container flex h-16 items-center">
+      <div className="container flex h-16 items-center px-4">
         <div className="mr-8 flex">
           <Link href="/" className="flex items-center space-x-2">
             <Shield className="h-6 w-6 text-primary" />
