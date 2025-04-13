@@ -20,13 +20,13 @@ import {
 
 export default function Dashboard() {
   return (
-    <div className="container py-10 space-y-8">
+    <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8 sm:py-10 space-y-6 sm:space-y-8">
       <div className="flex flex-col">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to your insurance claims management dashboard.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Welcome to your insurance claims management dashboard.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
         <DashboardCard
           title="Total Claims"
           value="128"
@@ -57,207 +57,203 @@ export default function Dashboard() {
         />
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="recent">Recent Claims</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="overview" className="space-y-3 sm:space-y-4">
+        <div className="overflow-x-auto pb-2">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="recent">Recent Claims</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
+          <TabsContent value="overview" className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4 md:gap-6">
+              <Card className="col-span-4">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium">Claims by Type</h3>
+                    <Button variant="outline" size="sm">
+                      View Details
+                    </Button>
+                  </div>
+                  <div className="space-y-3">
+                    <ClaimTypeBar type="Vehicle" icon={<Car />} percentage={42} color="bg-blue-500" />
+                    <ClaimTypeBar type="Property" icon={<Home />} percentage={28} color="bg-green-500" />
+                    <ClaimTypeBar type="Fire" icon={<Flame />} percentage={15} color="bg-red-500" />
+                    <ClaimTypeBar type="Water" icon={<Droplets />} percentage={10} color="bg-cyan-500" />
+                    <ClaimTypeBar type="Other" icon={<FileText />} percentage={5} color="bg-gray-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="col-span-4">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium">Quick Actions</h3>
+                  </div>
+                  <div className="grid gap-3">
+                    <Link href="/register">
+                      <Button className="w-full justify-start" size="lg">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Register New Claim
+                      </Button>
+                    </Link>
+                    <Link href="/history">
+                      <Button variant="outline" className="w-full justify-start" size="lg">
+                        <FileText className="mr-2 h-4 w-4" />
+                        View All Claims
+                      </Button>
+                    </Link>
+                    <Link href="/search">
+                      <Button variant="outline" className="w-full justify-start" size="lg">
+                        <Clock className="mr-2 h-4 w-4" />
+                        Pending Reviews
+                      </Button>
+                    </Link>
+                    <Button variant="outline" className="w-full justify-start" size="lg">
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Generate Reports
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium">Claims by Type</h3>
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  <ClaimTypeBar type="Vehicle" icon={<Car />} percentage={42} color="bg-blue-500" />
-                  <ClaimTypeBar type="Property" icon={<Home />} percentage={28} color="bg-green-500" />
-                  <ClaimTypeBar type="Fire" icon={<Flame />} percentage={15} color="bg-red-500" />
-                  <ClaimTypeBar type="Water" icon={<Droplets />} percentage={10} color="bg-cyan-500" />
-                  <ClaimTypeBar type="Other" icon={<FileText />} percentage={5} color="bg-gray-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="col-span-4">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium">Quick Actions</h3>
-                </div>
-                <div className="grid gap-3">
-                  <Link href="/register">
-                    <Button className="w-full justify-start" size="lg">
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Register New Claim
-                    </Button>
-                  </Link>
-                  <Link href="/history">
-                    <Button variant="outline" className="w-full justify-start" size="lg">
-                      <FileText className="mr-2 h-4 w-4" />
-                      View All Claims
-                    </Button>
-                  </Link>
-                  <Link href="/search">
-                    <Button variant="outline" className="w-full justify-start" size="lg">
-                      <Clock className="mr-2 h-4 w-4" />
-                      Pending Reviews
-                    </Button>
-                  </Link>
-                  <Button variant="outline" className="w-full justify-start" size="lg">
-                    <BarChart3 className="mr-2 h-4 w-4" />
-                    Generate Reports
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">Performance Metrics</h3>
-                <Button variant="outline" size="sm">
-                  View All
-                </Button>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <MetricCard
-                  title="Avg. Processing Time"
-                  value="3.2 days"
-                  change="-0.8 days"
-                  trend="down"
-                  icon={<Clock className="h-4 w-4" />}
-                />
-                <MetricCard
-                  title="Customer Satisfaction"
-                  value="94%"
-                  change="+2%"
-                  trend="up"
-                  icon={<ShieldCheck className="h-4 w-4" />}
-                />
-                <MetricCard
-                  title="Claim Approval Rate"
-                  value="86%"
-                  change="+4%"
-                  trend="up"
-                  icon={<CheckCircle2 className="h-4 w-4" />}
-                />
-                <MetricCard
-                  title="Avg. Claim Value"
-                  value="$4,280"
-                  change="+$340"
-                  trend="up"
-                  icon={<TrendingUp className="h-4 w-4" />}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="recent">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">Recent Claims</h3>
-                <Link href="/history">
+                  <h3 className="text-lg font-medium">Performance Metrics</h3>
                   <Button variant="outline" size="sm">
                     View All
                   </Button>
-                </Link>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium">Claim ID</th>
-                      <th className="text-left py-3 px-4 font-medium">Customer</th>
-                      <th className="text-left py-3 px-4 font-medium">Date</th>
-                      <th className="text-left py-3 px-4 font-medium">Type</th>
-                      <th className="text-left py-3 px-4 font-medium">Status</th>
-                      <th className="text-left py-3 px-4 font-medium">Est. Cost</th>
-                      <th className="text-right py-3 px-4 font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <RecentClaimRow
-                      id="123456789012"
-                      customer="John Smith"
-                      date="Mar 1, 2025"
-                      type="Vehicle"
-                      status="New"
-                      cost="$2,450"
-                    />
-                    <RecentClaimRow
-                      id="234567890123"
-                      customer="Sarah Johnson"
-                      date="Feb 28, 2025"
-                      type="Property"
-                      status="In Progress"
-                      cost="$5,800"
-                    />
-                    <RecentClaimRow
-                      id="345678901234"
-                      customer="Michael Brown"
-                      date="Feb 27, 2025"
-                      type="Fire"
-                      status="Approved"
-                      cost="$12,350"
-                    />
-                    <RecentClaimRow
-                      id="456789012345"
-                      customer="Emily Davis"
-                      date="Feb 26, 2025"
-                      type="Water"
-                      status="Rejected"
-                      cost="$3,200"
-                    />
-                    <RecentClaimRow
-                      id="567890123456"
-                      customer="Robert Wilson"
-                      date="Feb 25, 2025"
-                      type="Vehicle"
-                      status="Approved"
-                      cost="$4,100"
-                    />
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+                  <MetricCard
+                    title="Avg. Processing Time"
+                    value="3.2 days"
+                    change="-0.8 days"
+                    trend="down"
+                    icon={<Clock className="h-4 w-4" />}
+                  />
+                  <MetricCard
+                    title="Customer Satisfaction"
+                    value="94%"
+                    change="+2%"
+                    trend="up"
+                    icon={<ShieldCheck className="h-4 w-4" />}
+                  />
+                  <MetricCard
+                    title="Claim Approval Rate"
+                    value="86%"
+                    change="+4%"
+                    trend="up"
+                    icon={<CheckCircle2 className="h-4 w-4" />}
+                  />
+                  <MetricCard
+                    title="Avg. Claim Value"
+                    value="$4,280"
+                    change="+$340"
+                    trend="up"
+                    icon={<TrendingUp className="h-4 w-4" />}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="analytics">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">Claims Analytics</h3>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">
-                    This Month
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    This Quarter
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    This Year
-                  </Button>
+          <TabsContent value="recent">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium">Recent Claims</h3>
+                  <Link href="/history">
+                    <Button variant="outline" size="sm">
+                      View All
+                    </Button>
+                  </Link>
                 </div>
-              </div>
-              <div className="h-[300px] flex items-center justify-center border rounded-md bg-muted/20">
-                <div className="text-center">
-                  <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground" />
-                  <p className="mt-2 text-muted-foreground">Analytics charts would appear here</p>
+                <div className="overflow-x-auto pb-4">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4 font-medium">Claim ID</th>
+                        <th className="text-left py-3 px-4 font-medium">Customer</th>
+                        <th className="text-left py-3 px-4 font-medium">Date</th>
+                        <th className="text-left py-3 px-4 font-medium">Type</th>
+                        <th className="text-left py-3 px-4 font-medium">Status</th>
+                        <th className="text-left py-3 px-4 font-medium">Est. Cost</th>
+                        <th className="text-right py-3 px-4 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <RecentClaimRow
+                        id="123456789012"
+                        customer="John Smith"
+                        date="Mar 1, 2025"
+                        type="Vehicle"
+                        status="New"
+                        cost="$2,450"
+                      />
+                      <RecentClaimRow
+                        id="234567890123"
+                        customer="Sarah Johnson"
+                        date="Feb 28, 2025"
+                        type="Property"
+                        status="In Progress"
+                        cost="$5,800"
+                      />
+                      <RecentClaimRow
+                        id="345678901234"
+                        customer="Michael Brown"
+                        date="Feb 27, 2025"
+                        type="Fire"
+                        status="Approved"
+                        cost="$12,350"
+                      />
+                      <RecentClaimRow
+                        id="456789012345"
+                        customer="Emily Davis"
+                        date="Feb 26, 2025"
+                        type="Water"
+                        status="Rejected"
+                        cost="$3,200"
+                      />
+                      <RecentClaimRow
+                        id="567890123456"
+                        customer="Robert Wilson"
+                        date="Feb 25, 2025"
+                        type="Vehicle"
+                        status="Approved"
+                        cost="$4,100"
+                      />
+                    </tbody>
+                  </table>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium">Claims Analytics</h3>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto">This Month</Button>
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto">This Quarter</Button>
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto">This Year</Button>
+                  </div>
+                </div>
+                <div className="h-[300px] flex items-center justify-center border rounded-md bg-muted/20 p-4">
+                  <div className="text-center">
+                    <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground" />
+                    <p className="mt-2 text-muted-foreground">Analytics charts would appear here</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
     </div>
   )
 }
