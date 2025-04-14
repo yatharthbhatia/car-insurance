@@ -1,0 +1,86 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface Claim {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  created_at: string;
+}
+
+export default function ClaimsPage() {
+  const router = useRouter();
+  const [claims, setClaims] = useState<Claim[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchClaims = async () => {
+      try {
+        const response = await fetch('/api/claims');
+        const data = await response.json();
+        setClaims(data.claims);
+      } catch (error) {
+        console.error('Error fetching claims:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClaims();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-4 space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <Card key={i} className="cursor-pointer hover:bg-gray-50">
+            <CardHeader>
+              <Skeleton className="h-4 w-1/4" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-4 w-3/4 mb-2" />
+              <Skeleton className="h-4 w-1/2" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-4 space-y-4">
+      {claims.map((claim) => (
+        <Card
+          key={claim.id}
+          className="cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => router.push(`/claims/${claim.id}`)}
+        >
+          <CardHeader>
+            <CardTitle className="text-lg">{claim.title}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-2">{claim.description}</p>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">
+                Status: <span className="capitalize">{claim.status}</span>
+              </span>
+              <span className="text-sm text-gray-500">
+                {new Date(claim.created_at).toLocaleDateString()}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+      {claims.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          No claims found
+        </div>
+      )}
+    </div>
+  );
+}
