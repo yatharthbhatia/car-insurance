@@ -2,6 +2,8 @@ import type React from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Scooter01Icon , Scooter04Icon, VanIcon} from '@hugeicons/core-free-icons';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   BarChart3,
@@ -71,17 +73,16 @@ export default function Dashboard() {
               <Card className="col-span-4">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium">Claims by Type</h3>
+                    <h3 className="text-lg font-medium">Claims by Incident Type</h3>
                     <Button variant="outline" size="sm">
                       View Details
                     </Button>
                   </div>
                   <div className="space-y-3">
-                    <ClaimTypeBar type="Vehicle" icon={<Car />} percentage={42} color="bg-blue-500" />
-                    <ClaimTypeBar type="Property" icon={<Home />} percentage={28} color="bg-green-500" />
-                    <ClaimTypeBar type="Fire" icon={<Flame />} percentage={15} color="bg-red-500" />
-                    <ClaimTypeBar type="Water" icon={<Droplets />} percentage={10} color="bg-cyan-500" />
-                    <ClaimTypeBar type="Other" icon={<FileText />} percentage={5} color="bg-gray-500" />
+                    <ClaimTypeBar type="Fire Damage" icon={<Flame className="h-5 w-5" />} percentage={30} color="bg-red-500" />
+                    <ClaimTypeBar type="Water Damage" icon={<Droplets className="h-5 w-5" />} percentage={25} color="bg-blue-500" />
+                    <ClaimTypeBar type="Vehicle Accident" icon={<Car className="h-5 w-5" />} percentage={35} color="bg-purple-500" />
+                    <ClaimTypeBar type="Property Damage" icon={<Home className="h-5 w-5" />} percentage={10} color="bg-green-500" />
                   </div>
                 </CardContent>
               </Card>

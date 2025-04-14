@@ -4,6 +4,8 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,31 +15,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, Upload, User, Calendar, ImageIcon, CheckCircle2, ArrowRight } from "lucide-react"
 import { generateClaimId, saveClaimToStorage } from "@/lib/utils"
+import { claimFormSchema, type ClaimFormData } from "@/lib/validations/claim"
 
 export default function RegisterPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("customer")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
-  const [formData, setFormData] = useState({
+  const form = useForm<ClaimFormData>({
+    resolver: zodResolver(claimFormSchema),
+    defaultValues: {
     customerName: "",
     email: "",
     phone: "",
     policyNumber: "",
     incidentDate: "",
-    incidentType: "",
+    incidentType: undefined,
     description: "",
-    vehicleBrand: "", // Add this new field
-  })
+    vehicleBrand: "",
+    vehicleType: undefined, // Add vehicle type field
+  }})
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSelectChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, incidentType: value }))
-  }
+  const { register, handleSubmit: handleFormSubmit, formState: { errors }, setValue, watch } = form
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -50,8 +49,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async (data: ClaimFormData) => {
     setIsSubmitting(true)
 
     try {
@@ -72,7 +70,7 @@ export default function RegisterPage() {
       // Save the claim data
       const claimData = {
         id: claimId,
-        ...formData,
+        ...data,
         image: uploadedImage,
         status: "New",
         createdAt: new Date().toISOString(),
@@ -104,14 +102,14 @@ export default function RegisterPage() {
   }
 
   const isTabComplete = (tab: string) => {
+    const formValues = watch();
+    const hasErrors = Object.keys(errors).length > 0;
+
     switch (tab) {
       case "customer":
-        return formData.customerName && formData.email && formData.phone && formData.policyNumber
+        return !hasErrors && formValues.customerName && formValues.email && formValues.phone && formValues.policyNumber
       case "incident":
-        if (formData.incidentType === "vehicle") {
-          return formData.incidentDate && formData.incidentType && formData.description && formData.vehicleBrand
-        }
-        return formData.incidentDate && formData.incidentType && formData.description
+        return !hasErrors && formValues.incidentDate && formValues.incidentType && formValues.description && formValues.vehicleBrand && formValues.vehicleType
       case "evidence":
         return true // Optional
       default:
@@ -126,23 +124,28 @@ export default function RegisterPage() {
           <CardTitle className="text-2xl">Register New Insurance Claim</CardTitle>
           <CardDescription>Complete all required information to submit a new claim</CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <form onSubmit={handleFormSubmit(onSubmit)}>
+          <Tabs value={activeTab} onValueChange={(value) => {
+            if (value === "incident" && !isTabComplete("customer")) return
+            if (value === "evidence" && !isTabComplete("incident")) return
+            if (value === "review" && !isTabComplete("evidence")) return
+            setActiveTab(value)
+          }} className="w-full">
             <div className="px-6">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="customer" className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   <span className="hidden sm:inline">Customer</span>
                 </TabsTrigger>
-                <TabsTrigger value="incident" className="flex items-center gap-2">
+                <TabsTrigger value="incident" className={`flex items-center gap-2 ${!isTabComplete("customer") ? "cursor-not-allowed" : ""}`}>
                   <Calendar className="h-4 w-4" />
                   <span className="hidden sm:inline">Incident</span>
                 </TabsTrigger>
-                <TabsTrigger value="evidence" className="flex items-center gap-2">
+                <TabsTrigger value="evidence" className={`flex items-center gap-2 ${!isTabComplete("incident") ? "cursor-not-allowed" : ""}`}>
                   <ImageIcon className="h-4 w-4" />
                   <span className="hidden sm:inline">Evidence</span>
                 </TabsTrigger>
-                <TabsTrigger value="review" className="flex items-center gap-2">
+                <TabsTrigger value="review" className={`flex items-center gap-2 ${!isTabComplete("evidence") ? "cursor-not-allowed" : ""}`}>
                   <CheckCircle2 className="h-4 w-4" />
                   <span className="hidden sm:inline">Review</span>
                 </TabsTrigger>
@@ -161,46 +164,50 @@ export default function RegisterPage() {
                     <Label htmlFor="customerName">Full Name</Label>
                     <Input
                       id="customerName"
-                      name="customerName"
                       placeholder="John Doe"
-                      required
-                      value={formData.customerName}
-                      onChange={handleInputChange}
+                      {...register("customerName")}
+                      aria-invalid={!!errors.customerName}
                     />
+                    {errors.customerName && (
+                      <p className="text-sm text-red-500">{errors.customerName.message}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="policyNumber">Policy Number</Label>
                     <Input
                       id="policyNumber"
-                      name="policyNumber"
                       placeholder="POL-12345678"
-                      required
-                      value={formData.policyNumber}
-                      onChange={handleInputChange}
+                      {...register("policyNumber")}
+                      aria-invalid={!!errors.policyNumber}
                     />
+                    {errors.policyNumber && (
+                      <p className="text-sm text-red-500">{errors.policyNumber.message}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
-                      name="email"
                       type="email"
                       placeholder="john.doe@example.com"
-                      required
-                      value={formData.email}
-                      onChange={handleInputChange}
+                      {...register("email")}
+                      aria-invalid={!!errors.email}
                     />
+                    {errors.email && (
+                      <p className="text-sm text-red-500">{errors.email.message}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
                       id="phone"
-                      name="phone"
-                      placeholder="+1 (555) 123-4567"
-                      required
-                      value={formData.phone}
-                      onChange={handleInputChange}
+                      placeholder="1234567890"
+                      {...register("phone")}
+                      aria-invalid={!!errors.phone}
                     />
+                    {errors.phone && (
+                      <p className="text-sm text-red-500">{errors.phone.message}</p>
+                    )}
                   </div>
                 </div>
               </TabsContent>
@@ -218,26 +225,43 @@ export default function RegisterPage() {
                     <Label htmlFor="incidentDate">Incident Date</Label>
                     <Input
                       id="incidentDate"
-                      name="incidentDate"
                       type="date"
-                      required
-                      value={formData.incidentDate}
-                      onChange={handleInputChange}
+                      {...register("incidentDate")}
+                      aria-invalid={!!errors.incidentDate}
                     />
+                    {errors.incidentDate && (
+                      <p className="text-sm text-red-500">{errors.incidentDate.message}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="incidentType">Incident Type</Label>
-                    <Select onValueChange={handleSelectChange} value={formData.incidentType}>
+                    <Select onValueChange={(value: "collision" | "theft" | "vandalism" | "fire" | "natural" | "mechanical") => setValue("incidentType", value)} value={watch("incidentType")}>
                       <SelectTrigger id="incidentType">
                         <SelectValue placeholder="Select incident type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="vehicle">Vehicle Accident</SelectItem>
-                        <SelectItem value="property">Property Damage</SelectItem>
-                        <SelectItem value="theft">Theft</SelectItem>
-                        <SelectItem value="fire">Fire Damage</SelectItem>
-                        <SelectItem value="water">Water Damage</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="collision">Collision/Accident</SelectItem>
+                        <SelectItem value="theft">Vehicle Theft</SelectItem>
+                        <SelectItem value="vandalism">Vandalism</SelectItem>
+                        <SelectItem value="fire">Vehicle Fire</SelectItem>
+                        <SelectItem value="natural">Natural Disaster Damage</SelectItem>
+                        <SelectItem value="mechanical">Mechanical Failure</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicleType">Vehicle Type</Label>
+                    <Select 
+                      onValueChange={(value: "2-wheeler" | "3-wheeler" | "4-wheeler") => setValue("vehicleType", value)}
+                      value={watch("vehicleType")}
+                    >
+                      <SelectTrigger id="vehicleType" className={errors.vehicleType ? "border-red-500" : ""}>
+                        <SelectValue placeholder="Select vehicle type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2-wheeler">2 Wheeler</SelectItem>
+                        <SelectItem value="3-wheeler">3 Wheeler</SelectItem>
+                        <SelectItem value="4-wheeler">4 Wheeler</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -245,26 +269,27 @@ export default function RegisterPage() {
                     <Label htmlFor="vehicleBrand">Vehicle Brand</Label>
                     <Input
                       id="vehicleBrand"
-                      name="vehicleBrand"
                       placeholder="e.g. Toyota, Honda, BMW"
-                      value={formData.vehicleBrand}
-                      onChange={handleInputChange}
-                      disabled={formData.incidentType !== "vehicle"}
+                      {...register("vehicleBrand")}
+                      aria-invalid={!!errors.vehicleBrand}
                     />
-                    <p className="text-xs text-muted-foreground">Required for vehicle incidents only</p>
+                    {errors.vehicleBrand && (
+                      <p className="text-sm text-red-500">{errors.vehicleBrand.message}</p>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="description">Incident Description</Label>
                   <Textarea
                     id="description"
-                    name="description"
                     placeholder="Please provide details about the incident..."
                     rows={4}
-                    required
-                    value={formData.description}
-                    onChange={handleInputChange}
+                    {...register("description")}
+                    aria-invalid={!!errors.description}
                   />
+                  {errors.description && (
+                    <p className="text-sm text-red-500">{errors.description.message}</p>
+                  )}
                 </div>
               </TabsContent>
 
@@ -335,16 +360,16 @@ export default function RegisterPage() {
                     </CardHeader>
                     <CardContent className="grid gap-2 md:grid-cols-2 text-sm">
                       <div>
-                        <span className="font-medium">Name:</span> {formData.customerName || "Not provided"}
+                        <span className="font-medium">Name:</span> {watch("customerName") || "Not provided"}
                       </div>
                       <div>
-                        <span className="font-medium">Policy Number:</span> {formData.policyNumber || "Not provided"}
+                        <span className="font-medium">Policy Number:</span> {watch("policyNumber") || "Not provided"}
                       </div>
                       <div>
-                        <span className="font-medium">Email:</span> {formData.email || "Not provided"}
+                        <span className="font-medium">Email:</span> {watch("email") || "Not provided"}
                       </div>
                       <div>
-                        <span className="font-medium">Phone:</span> {formData.phone || "Not provided"}
+                        <span className="font-medium">Phone:</span> {watch("phone") || "Not provided"}
                       </div>
                     </CardContent>
                   </Card>
@@ -355,22 +380,27 @@ export default function RegisterPage() {
                     </CardHeader>
                     <CardContent className="grid gap-2 md:grid-cols-2 text-sm">
                       <div>
-                        <span className="font-medium">Date:</span> {formData.incidentDate || "Not provided"}
+                        <span className="font-medium">Date:</span> {watch("incidentDate") || "Not provided"}
                       </div>
                       <div>
                         <span className="font-medium">Type:</span>{" "}
-                        {formData.incidentType
-                          ? formData.incidentType.charAt(0).toUpperCase() + formData.incidentType.slice(1)
+                        {watch("incidentType")
+                          ? watch("incidentType").charAt(0).toUpperCase() + watch("incidentType").slice(1)
                           : "Not provided"}
                       </div>
-                      {formData.incidentType === "vehicle" && (
-                        <div>
-                          <span className="font-medium">Vehicle Brand:</span> {formData.vehicleBrand || "Not provided"}
-                        </div>
+                      {(
+                        <>
+                          <div>
+                            <span className="font-medium">Vehicle Brand:</span> {watch("vehicleBrand") || "Not provided"}
+                          </div>
+                          <div>
+                            <span className="font-medium">Vehicle Type:</span> {watch("vehicleType") || "Not provided"}
+                          </div>
+                        </>
                       )}
                       <div className="md:col-span-2">
                         <span className="font-medium">Description:</span>
-                        <p className="mt-1">{formData.description || "Not provided"}</p>
+                        <p className="mt-1">{watch("description") || "Not provided"}</p>
                       </div>
                     </CardContent>
                   </Card>
