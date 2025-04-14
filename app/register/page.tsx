@@ -51,13 +51,19 @@ export default function RegisterPage() {
   }
 
   const onSubmit = async (data: ClaimFormData) => {
-    // Prevent form submission if not on review tab
+    // If not on review tab, just navigate to next tab
     if (activeTab !== "review") {
       nextTab();
       return;
     }
     
-    // Only proceed with submission when explicitly on review tab
+    // If on review tab but submit button not clicked, just return
+    const submitEvent = window.event;
+    if (!(submitEvent?.target as HTMLElement)?.closest('button[type="submit"]')) {
+      return;
+    }
+    
+    // Validate all tabs are complete before submission
     if (!isTabComplete("customer") || !isTabComplete("incident")) {
       return;
     }
@@ -456,6 +462,17 @@ export default function RegisterPage() {
                   Continue <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
+                <Button type="submit" disabled={!isTabComplete("incident") || !isTabComplete("customer")}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting
+                    </>
+                  ) : (
+                    <>Submit Claim</>
+                  )}
+                </Button>
+              )}
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <>
@@ -466,7 +483,6 @@ export default function RegisterPage() {
                     "Submit Claim"
                   )}
                 </Button>
-              )}
             </CardFooter>
           </Tabs>
         </form>
