@@ -445,34 +445,35 @@ export default function RegisterPage() {
               </TabsContent>
             </CardContent>
 
-            <CardFooter className="flex justify-between">
-              {activeTab !== "customer" && (
+
+            <CardFooter className="flex justify-between px-6 pb-6">
+              {activeTab !== "customer" ? (
                 <Button type="button" variant="outline" onClick={prevTab}>
                   Back
                 </Button>
+              ) : (
+                <Button type="button" variant="outline" onClick={() => router.push("/")}>
+                  Cancel
+                </Button>
               )}
-              <Button
-                type="submit"
-                className={activeTab === "review" ? "ml-auto bg-green-600" : "ml-auto"}
-                disabled={isSubmitting || (activeTab === "review" && (!isTabComplete("customer") || !isTabComplete("incident")))}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Submitting...
-                  </>
-                ) : activeTab === "review" ? (
-                  <>
-                    Submit Claim
-                    <CheckCircle2 className="ml-2 h-4 w-4" />
-                  </>
-                ) : (
-                  <>
-                    Next Step
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
+
+              {activeTab === "review" ? (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting
+                    </>
+                  ) : (
+                    "Submit Claim"
+                  )}
+                </Button>
+              ) : (
+                <Button type="button" onClick={nextTab} disabled={!isTabComplete(activeTab)}>
+                  Next Step
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              )}
             </CardFooter>
           </Tabs>
         </form>
