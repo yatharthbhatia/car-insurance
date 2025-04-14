@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "InsureClaim - Insurance Claims Management",
   description: "Manage insurance claims with AI-powered damage assessment",
-    generator: 'v0.dev'
+    generator: ''
 }
 
 export default function RootLayout({
@@ -31,6 +31,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-import './globals.css'
