@@ -31,3 +31,8 @@ schema copy.sql
 
 # Readme
 README.md
+lib/utils/s3-test-runner.js
+lib/utils/s3-test-runner.ts
+lib/utils/s3-test.js
+lib/utils/s3-test.ts
+test-s3.js

@@ -39,14 +39,16 @@ export default function RegisterPage() {
 
   const { register, handleSubmit: handleFormSubmit, formState: { errors }, setValue, watch } = form
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setUploadedImage(event.target?.result as string)
-      }
-      reader.readAsDataURL(file)
+      // Store the file temporarily
+      setSelectedFile(file)
+      // Create a local URL for preview
+      const previewUrl = URL.createObjectURL(file)
+      setUploadedImage(previewUrl)
     }
   }
 
@@ -79,11 +81,42 @@ export default function RegisterPage() {
         notes: "AI-generated assessment based on uploaded image.",
       };
 
+      // Upload image to S3 if a file is selected
+      let imageUrl = null
+      if (selectedFile) {
+        try {
+          const formData = new FormData()
+          formData.append('file', selectedFile)
+
+          const response = await fetch(`/api/claims/${claimId}/images`, {
+            method: 'POST',
+            body: formData,
+          })
+
+          const result = await response.json()
+
+          if (!response.ok) {
+            throw new Error(result.error || 'Failed to upload image')
+          }
+
+          if (!result.url) {
+            throw new Error('Invalid response from server')
+          }
+
+          imageUrl = result.url
+        } catch (error) {
+          console.error('Image upload error:', error)
+          alert(error instanceof Error ? error.message : 'Failed to upload image')
+          setIsSubmitting(false)
+          return
+        }
+      }
+
       // Save the claim data
       const claimData = {
         id: claimId,
         ...data,
-        image: uploadedImage,
+        image: imageUrl,
         status: "New",
         createdAt: new Date().toISOString(),
         damageAssessment,
