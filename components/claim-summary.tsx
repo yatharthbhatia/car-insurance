@@ -33,6 +33,22 @@ export function ClaimSummary({ claim, buttonVariant = "outline", buttonSize = "s
     window.print()
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "new":
+        return "bg-blue-500"
+      case "in progress":
+        return "bg-yellow-500"
+      case "approved":
+        return "bg-green-500"
+      case "rejected":
+        return "bg-red-500"
+      case "pending":
+        return "bg-orange-500"
+      default:
+        return "bg-gray-500"
+    }
+  }
   const handleDownload = () => {
     // In a real app, this would generate a PDF or other document
     alert("In a production app, this would download a PDF summary of the claim.")
@@ -63,7 +79,7 @@ export function ClaimSummary({ claim, buttonVariant = "outline", buttonSize = "s
               <h3 className="text-xl font-bold">Claim #{claim.id}</h3>
               <p className="text-muted-foreground">Created on {formatDate(claim.createdAt)}</p>
             </div>
-            <div className="px-3 py-1 rounded-full text-xs font-medium text-white bg-blue-500">{claim.status}</div>
+            <div className={`px-3 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(claim.status)}`}>{claim.status}</div>
           </div>
 
           <Card>
