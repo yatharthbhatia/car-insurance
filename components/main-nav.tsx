@@ -17,10 +17,10 @@ export function MainNav() {
       active: pathname === "/",
     },
     {
-      href: "/register",
+      href: "/claims/register",
       label: "New Claim",
       icon: <PlusCircle className="h-4 w-4 mr-2" />,
-      active: pathname === "/register",
+      active: pathname === "/claims/register",
     },
     {
       href: "/history",

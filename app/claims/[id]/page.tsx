@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { use } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -25,14 +26,15 @@ import type { ClaimData } from "@/lib/types"
 // Import the ClaimSummary component at the top of the file
 import { ClaimSummary } from "@/components/claim-summary"
 
-export default function ClaimDetailsPage({ params }: { params: { id: string } }) {
+export default function ClaimDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const router = useRouter()
   const [claim, setClaim] = useState<ClaimData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchClaim = () => {
-      const claimData = getClaimById(params.id)
+      const claimData = getClaimById(id)
       if (claimData) {
         setClaim(claimData)
       } else {
@@ -43,7 +45,7 @@ export default function ClaimDetailsPage({ params }: { params: { id: string } })
     }
 
     fetchClaim()
-  }, [params.id, router])
+  }, [id, router])
 
   const handleStatusChange = (newStatus: string) => {
     if (claim) {
