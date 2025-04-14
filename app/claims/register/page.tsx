@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, Upload, User, Calendar, ImageIcon, CheckCircle2, ArrowRight } from "lucide-react"
-import { generateClaimId, saveClaimToStorage } from "@/lib/utils"
+import { generateClaimId, saveClaimToStorage, getClaimById } from "@/lib/utils"
 import { claimFormSchema, type ClaimFormData } from "@/lib/validations/claim"
 
 export default function RegisterPage() {
@@ -56,26 +56,20 @@ export default function RegisterPage() {
       nextTab();
       return;
     }
-    
-    // If on review tab but submit button not clicked, just return
-    const submitEvent = window.event;
-    if (!(submitEvent?.target as HTMLElement)?.closest('button[type="submit"]')) {
-      return;
-    }
-    
+
     // Validate all tabs are complete before submission
     if (!isTabComplete("customer") || !isTabComplete("incident")) {
       return;
     }
-    
+
     setIsSubmitting(true);
 
     try {
       // Generate a unique 12-digit claim ID
-      const claimId = generateClaimId()
+      const claimId = generateClaimId();
 
       // Simulate AI processing delay
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Simulate AI damage assessment
       const damageAssessment = {
@@ -83,7 +77,7 @@ export default function RegisterPage() {
         estimatedCost: Math.floor(Math.random() * 10000) + 500,
         repairTime: Math.floor(Math.random() * 30) + 1,
         notes: "AI-generated assessment based on uploaded image.",
-      }
+      };
 
       // Save the claim data
       const claimData = {
@@ -93,18 +87,23 @@ export default function RegisterPage() {
         status: "New",
         createdAt: new Date().toISOString(),
         damageAssessment,
+      };
+
+      saveClaimToStorage(claimData);
+
+      // Verify claim was saved before navigation
+      const savedClaim = getClaimById(claimId);
+      if (!savedClaim) {
+        throw new Error("Failed to save claim data");
       }
 
-      saveClaimToStorage(claimData)
-
       // Navigate to the claim details page
-      router.push(`/claims/${claimId}`)
+      router.push(`/claims/${claimId}`);
     } catch (error) {
-      console.error("Error submitting claim:", error)
-    } finally {
-      setIsSubmitting(false)
+      console.error("Error submitting claim:", error);
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const nextTab = () => {
     if (activeTab === "customer") setActiveTab("incident")
@@ -457,32 +456,23 @@ export default function RegisterPage() {
                 </Button>
               )}
 
-              {activeTab !== "review" ? (
-                <Button type="button" onClick={nextTab} disabled={!isTabComplete(activeTab)}>
-                  Continue <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              ) : (
-                <Button type="submit" disabled={!isTabComplete("incident") || !isTabComplete("customer")}>
+              {activeTab === "review" ? (
+                <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Submitting
                     </>
                   ) : (
-                    <>Submit Claim</>
-                  )}
-                </Button>
-              )}
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
                     "Submit Claim"
                   )}
                 </Button>
+              ) : (
+                <Button type="button" onClick={nextTab} disabled={!isTabComplete(activeTab)}>
+                  Continue
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              )}
             </CardFooter>
           </Tabs>
         </form>

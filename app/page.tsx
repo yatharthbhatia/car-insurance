@@ -93,7 +93,7 @@ export default function Dashboard() {
                     <h3 className="text-lg font-medium">Quick Actions</h3>
                   </div>
                   <div className="grid gap-3">
-                    <Link href="/register">
+                    <Link href="/claims/register">
                       <Button className="w-full justify-start" size="lg">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Register New Claim
