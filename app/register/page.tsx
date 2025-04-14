@@ -22,7 +22,8 @@ export default function RegisterPage() {
   const [activeTab, setActiveTab] = useState("customer")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
-  const form = useForm<ClaimFormData>({
+  const form = useForm<ClaimFormData>({    
+    mode: "onChange",
     resolver: zodResolver(claimFormSchema),
     defaultValues: {
     customerName: "",
@@ -50,7 +51,18 @@ export default function RegisterPage() {
   }
 
   const onSubmit = async (data: ClaimFormData) => {
-    setIsSubmitting(true)
+    // Prevent form submission if not on review tab
+    if (activeTab !== "review") {
+      nextTab();
+      return;
+    }
+    
+    // Only proceed with submission when explicitly on review tab
+    if (!isTabComplete("customer") || !isTabComplete("incident")) {
+      return;
+    }
+    
+    setIsSubmitting(true);
 
     try {
       // Generate a unique 12-digit claim ID
@@ -166,7 +178,7 @@ export default function RegisterPage() {
                       id="customerName"
                       placeholder="John Doe"
                       {...register("customerName")}
-                      aria-invalid={!!errors.customerName}
+                      className={errors.customerName ? "border-red-500" : ""}
                     />
                     {errors.customerName && (
                       <p className="text-sm text-red-500">{errors.customerName.message}</p>
@@ -178,7 +190,7 @@ export default function RegisterPage() {
                       id="policyNumber"
                       placeholder="POL-12345678"
                       {...register("policyNumber")}
-                      aria-invalid={!!errors.policyNumber}
+                      className={errors.policyNumber ? "border-red-500" : ""}
                     />
                     {errors.policyNumber && (
                       <p className="text-sm text-red-500">{errors.policyNumber.message}</p>
@@ -191,7 +203,7 @@ export default function RegisterPage() {
                       type="email"
                       placeholder="john.doe@example.com"
                       {...register("email")}
-                      aria-invalid={!!errors.email}
+                      className={errors.email ? "border-red-500" : ""}
                     />
                     {errors.email && (
                       <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -203,7 +215,7 @@ export default function RegisterPage() {
                       id="phone"
                       placeholder="1234567890"
                       {...register("phone")}
-                      aria-invalid={!!errors.phone}
+                      className={errors.phone ? "border-red-500" : ""}
                     />
                     {errors.phone && (
                       <p className="text-sm text-red-500">{errors.phone.message}</p>
@@ -227,7 +239,7 @@ export default function RegisterPage() {
                       id="incidentDate"
                       type="date"
                       {...register("incidentDate")}
-                      aria-invalid={!!errors.incidentDate}
+                      className={errors.incidentDate ? "border-red-500" : ""}
                     />
                     {errors.incidentDate && (
                       <p className="text-sm text-red-500">{errors.incidentDate.message}</p>
@@ -271,7 +283,7 @@ export default function RegisterPage() {
                       id="vehicleBrand"
                       placeholder="e.g. Toyota, Honda, BMW"
                       {...register("vehicleBrand")}
-                      aria-invalid={!!errors.vehicleBrand}
+                      className={errors.vehicleBrand ? "border-red-500" : ""}
                     />
                     {errors.vehicleBrand && (
                       <p className="text-sm text-red-500">{errors.vehicleBrand.message}</p>
@@ -285,7 +297,7 @@ export default function RegisterPage() {
                     placeholder="Please provide details about the incident..."
                     rows={4}
                     {...register("description")}
-                    aria-invalid={!!errors.description}
+                    className={errors.description ? "border-red-500" : ""}
                   />
                   {errors.description && (
                     <p className="text-sm text-red-500">{errors.description.message}</p>

@@ -162,7 +162,7 @@ export default function ClaimDetailsPage({ params }: { params: { id: string } })
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="w-full grid grid-cols-3">
+            <TabsList className="w-full grid grid-cols-3 mb-5">
               <TabsTrigger value="details" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
                 Details
@@ -177,55 +177,55 @@ export default function ClaimDetailsPage({ params }: { params: { id: string } })
               </TabsTrigger>
             </TabsList>
 
-            <Card className="border-t-0 rounded-t-none">
+            <Card>
               <CardContent className="p-6">
-                <TabsContent value="details" className="mt-0 space-y-6">
-                  <div>
-                    <div className="flex items-center mb-4">
+                <TabsContent value="details" className="mt-0 space-y-8">
+                  <div className="space-y-6">
+                    <div className="flex items-center mb-6">
                       <User className="h-5 w-5 mr-2 text-primary" />
                       <h3 className="text-lg font-medium">Customer Information</h3>
                     </div>
-                    <div className="grid gap-4 md:grid-cols-2 bg-muted/30 p-4 rounded-lg">
-                      <div>
+                    <div className="grid gap-6 md:grid-cols-2 bg-muted/30 p-6 rounded-lg">
+                      <div className="space-y-2">
                         <p className="text-sm font-medium text-muted-foreground">Full Name</p>
                         <p className="font-medium">{claim.customerName}</p>
                       </div>
-                      <div>
+                      <div className="space-y-2">
                         <p className="text-sm font-medium text-muted-foreground">Policy Number</p>
                         <p className="font-medium">{claim.policyNumber}</p>
                       </div>
-                      <div>
+                      <div className="space-y-2">
                         <p className="text-sm font-medium text-muted-foreground">Email</p>
                         <p>{claim.email}</p>
                       </div>
-                      <div>
+                      <div className="space-y-2">
                         <p className="text-sm font-medium text-muted-foreground">Phone</p>
                         <p>{claim.phone}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div>
-                    <div className="flex items-center mb-4">
+                  <div className="space-y-6">
+                    <div className="flex items-center mb-6">
                       <Calendar className="h-5 w-5 mr-2 text-primary" />
                       <h3 className="text-lg font-medium">Incident Details</h3>
                     </div>
-                    <div className="grid gap-4 md:grid-cols-2 bg-muted/30 p-4 rounded-lg">
-                      <div>
+                    <div className="grid gap-6 md:grid-cols-2 bg-muted/30 p-6 rounded-lg">
+                      <div className="space-y-2">
                         <p className="text-sm font-medium text-muted-foreground">Incident Date</p>
                         <p className="font-medium">{claim.incidentDate}</p>
                       </div>
-                      <div>
+                      <div className="space-y-2">
                         <p className="text-sm font-medium text-muted-foreground">Incident Type</p>
                         <p className="font-medium capitalize">{claim.incidentType}</p>
                       </div>
                       {claim.incidentType === "vehicle" && claim.vehicleBrand && (
-                        <div>
+                        <div className="space-y-2">
                           <p className="text-sm font-medium text-muted-foreground">Vehicle Brand</p>
                           <p className="font-medium">{claim.vehicleBrand}</p>
                         </div>
                       )}
-                      <div className="md:col-span-2">
+                      <div className="md:col-span-2 space-y-2">
                         <p className="text-sm font-medium text-muted-foreground">Description</p>
                         <p className="mt-1">{claim.description}</p>
                       </div>
