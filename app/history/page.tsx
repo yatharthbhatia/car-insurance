@@ -31,7 +31,7 @@ function ClaimsTable({
             <th className="text-left py-3 px-4 font-medium text-sm sm:text-base">Type</th>
             <th className="text-left py-3 px-4 font-medium text-sm sm:text-base">Status</th>
             <th className="text-left py-3 px-4 font-medium text-sm sm:text-base">Est. Cost</th>
-            <th className="text-right py-3 px-4 font-medium text-sm sm:text-base">Actions</th>
+            <th className="text-right py-3 px-32 font-medium text-sm sm:text-base">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -43,7 +43,7 @@ function ClaimsTable({
               <td className="py-3 px-4 capitalize text-sm sm:text-base">{claim.incidentType}</td>
               <td className="py-3 px-4">
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(
+                  className={`inline-flex items-center justify-center rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(
                     claim.status
                   )}`}
                 >
@@ -51,16 +51,16 @@ function ClaimsTable({
                 </span>
               </td>
               <td className="py-3 px-4 text-sm sm:text-base">
-                ${claim.damageAssessment?.estimatedCost.toLocaleString() || "N/A"}
+                ${claim.damageAssessment?.estimatedCost.toLocaleString()}
               </td>
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end space-x-2">
                   <ClaimSummary claim={claim} buttonVariant="ghost" buttonSize="sm" />
-                  <Link href={`/claims/${claim.id}`}>
+                    <Link href={`/claims/${claim.id}/summary`} />
                     <Button variant="outline" size="sm">
-                      View Details
+                    <Link href={`/claims/${claim.id}`}>View Details</Link>
+
                     </Button>
-                  </Link>
                 </div>
               </td>
             </tr>
