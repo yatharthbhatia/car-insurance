@@ -12,7 +12,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${file.name}`;
+    const originalFileName = file.name;
+    const fileExtension = originalFileName.split('.').pop();
+    const fileName = `image.${fileExtension}`;
     const s3Url = await uploadImageToS3(buffer, fileName, params.id);
 
     const [result] = await dbPool.execute(
