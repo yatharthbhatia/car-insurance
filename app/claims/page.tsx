@@ -7,10 +7,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface Claim {
   id: string;
-  title: string;
-  description: string;
+  customerName: string;
+  email: string;
+  phone: string;
+  policyNumber: string;
+  incidentDate: string;
+  incidentType: string;
+  vehicleBrand: string;
   status: string;
-  created_at: string;
+  createdAt: string;
+  estimatedCost: number;
+  damagePhotoUrl: string | null;
 }
 
 export default function ClaimsPage() {
@@ -61,16 +68,33 @@ export default function ClaimsPage() {
           onClick={() => router.push(`/claims/${claim.id}`)}
         >
           <CardHeader>
-            <CardTitle className="text-lg">{claim.title}</CardTitle>
+            <CardTitle className="text-lg">{claim.customerName}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-600 mb-2">{claim.description}</p>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <p className="text-sm text-gray-500">Policy Number</p>
+                <p className="font-medium">{claim.policyNumber}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Incident Type</p>
+                <p className="font-medium capitalize">{claim.incidentType}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Vehicle</p>
+                <p className="font-medium">{claim.vehicleBrand}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Estimated Cost</p>
+                <p className="font-medium">${claim.estimatedCost?.toLocaleString() || 'N/A'}</p>
+              </div>
+            </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">
                 Status: <span className="capitalize">{claim.status}</span>
               </span>
               <span className="text-sm text-gray-500">
-                {new Date(claim.created_at).toLocaleDateString()}
+                {new Date(claim.createdAt).toLocaleDateString()}
               </span>
             </div>
           </CardContent>

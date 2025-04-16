@@ -2,11 +2,64 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbPool } from '@/lib/db/config';
 import { uploadImageToS3, generateUniqueId, getClaimFolderPath } from '@/lib/utils/s3-utils';
 
+// GET /api/claims - Get all claims
+export async function GET(req: NextRequest) {
+  try {
+    const [rows] = await dbPool.execute(
+      `SELECT 
+        c.claim_id as id,
+        c.customer_name as customerName,
+        c.email,
+        c.phone_number as phone,
+        c.policy_number as policyNumber,
+        c.incident_date as incidentDate,
+        it.type_name as incidentType,
+        c.vehicle_brand as vehicleBrand,
+        cs.status_name as status,
+        c.created_at as createdAt,
+        c.estimated_cost as estimatedCost,
+        c.damage_photo_url as damagePhotoUrl
+      FROM claims c
+      LEFT JOIN incident_types it ON c.incident_type_id = it.type_id
+      LEFT JOIN claim_status cs ON c.status_id = cs.status_id
+      ORDER BY c.created_at DESC`
+    );
+
+    return NextResponse.json({ claims: rows });
+  } catch (error) {
+    console.error('Error fetching claims:', error);
+    return NextResponse.json({ error: 'Failed to fetch claims' }, { status: 500 });
+  }
+}
+
+// POST /api/claims - Create a new claim
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const policyNumber = formData.get('policyNumber') as string;
-    const description = formData.get('description') as string;
+
+    // Check if claim already exists for this policy number
+    const [existingClaims] = await dbPool.execute(
+      'SELECT claim_id FROM claims WHERE policy_number = ?',
+      [policyNumber]
+    );
+
+    if ((existingClaims as any[]).length > 0) {
+      return NextResponse.json(
+        { success: false, message: 'A claim already exists for this policy number' },
+        { status: 409 }
+      );
+    }
+    // const policyNumber = formData.get('policyNumber') as string;
+    const customerName = formData.get('customerName') as string;
+    const email = formData.get('email') as string;
+    const phoneNumber = formData.get('phoneNumber') as string;
+    const vehicleTypeId = parseInt(formData.get('vehicleTypeId') as string);
+    const vehicleBrand = formData.get('vehicleBrand') as string;
+    const vehicleDescription = formData.get('vehicleDescription') as string;
+    const incidentTypeId = parseInt(formData.get('incidentTypeId') as string);
+    const incidentDate = formData.get('incidentDate') as string;
+    const estimatedCost = parseFloat(formData.get('estimatedCost') as string);
     const images = formData.getAll('images') as File[];
 
     // Generate unique claim ID
@@ -18,24 +71,31 @@ export async function POST(request: NextRequest) {
 
     try {
       // Insert claim record
+      // Get initial status ID (new)
+      const [statusRows] = await connection.execute(
+        'SELECT status_id FROM claim_status WHERE status_name = "new"'
+      );
+      const statusId = (statusRows as any[])[0].status_id;
+
+      // Insert claim record with all required fields
       await connection.execute(
-        'INSERT INTO claims (id, policy_number, description) VALUES (?, ?, ?)',
-        [claimId, policyNumber, description]
+        'INSERT INTO claims (claim_id, uuid, customer_name, policy_number, email, phone_number, vehicle_type_id, vehicle_brand, vehicle_description, incident_type_id, incident_date, status_id, estimated_cost) VALUES (?, UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [claimId, customerName, policyNumber, email, phoneNumber, vehicleTypeId, vehicleBrand, vehicleDescription, incidentTypeId, incidentDate, statusId, estimatedCost]
       );
 
-      // Process and upload images
-      for (const image of images) {
-        const buffer = Buffer.from(await image.arrayBuffer());
-        const fileName = `${Date.now()}-${image.name}`;
+      // Process and upload damage photos
+      if (images.length > 0) {
+        const damagePhoto = images[0];
+        const buffer = Buffer.from(await damagePhoto.arrayBuffer());
+        const fileName = `${Date.now()}-${damagePhoto.name}`;
         
         // Upload to S3
-        const s3Url = await uploadImageToS3(buffer, fileName, claimId);
-        const folderPath = getClaimFolderPath(claimId);
-
-        // Store image reference in database
+        const damagePhotoUrl = await uploadImageToS3(buffer, fileName, claimId);
+        
+        // Update claim with damage photo URL
         await connection.execute(
-          'INSERT INTO claim_images (id, claim_id, s3_url, s3_folder_path, file_name) VALUES (UUID(), ?, ?, ?, ?)',
-          [claimId, s3Url, folderPath, fileName]
+          'UPDATE claims SET damage_photo_url = ? WHERE claim_id = ?',
+          [damagePhotoUrl, claimId]
         );
       }
 
