@@ -87,6 +87,15 @@ export default function RegisterPage() {
         try {
           const formData = new FormData()
           formData.append('file', selectedFile)
+          formData.append('customerName', data.customerName)
+          formData.append('email', data.email)
+          formData.append('phone', data.phone)
+          formData.append('policyNumber', data.policyNumber)
+          formData.append('incidentDate', data.incidentDate)
+          formData.append('incidentType', data.incidentType)
+          formData.append('description', data.description)
+          formData.append('vehicleBrand', data.vehicleBrand)
+          formData.append('vehicleType', data.vehicleType)
 
           const response = await fetch(`/api/claims/${claimId}/images`, {
             method: 'POST',

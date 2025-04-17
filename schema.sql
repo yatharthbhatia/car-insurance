@@ -5,7 +5,7 @@ USE insurance_claims;
 -- Vehicle types enum table
 CREATE TABLE vehicle_types (
     type_id INT PRIMARY KEY AUTO_INCREMENT,
-    type_name ENUM('2_wheeler', '3_wheeler', '4_wheeler') NOT NULL,
+    type_name ENUM('2-wheeler', '3-wheeler', '4-wheeler') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -19,7 +19,7 @@ CREATE TABLE claim_status (
 -- Incident types enum table
 CREATE TABLE incident_types (
     type_id INT PRIMARY KEY AUTO_INCREMENT,
-    type_name ENUM('vehicle_accident') NOT NULL,
+    type_name ENUM('collision', 'theft', 'vandalism', 'fire', 'natural', 'mechanical') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -63,9 +63,9 @@ CREATE TABLE claim_actions (
 
 -- Insert initial vehicle types
 INSERT INTO vehicle_types (type_name) VALUES
-('2_wheeler'),
-('3_wheeler'),
-('4_wheeler');
+('2-wheeler'),
+('3-wheeler'),
+('4-wheeler');
 
 -- Insert initial claim status
 INSERT INTO claim_status (status_name) VALUES
@@ -76,7 +76,12 @@ INSERT INTO claim_status (status_name) VALUES
 
 -- Insert initial incident types
 INSERT INTO incident_types (type_name) VALUES
-('vehicle_accident');
+('collision'), 
+('theft'), 
+('vandalism'), 
+('fire'), 
+('natural'), 
+('mechanical');
 
 -- Create trigger to update claim status to 'new' if claim is 2 days old
 DELIMITER //

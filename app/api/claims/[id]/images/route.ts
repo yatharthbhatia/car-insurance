@@ -5,32 +5,82 @@ import { uploadImageToS3, getSignedImageUrl } from '@/lib/utils/s3-utils';
 // POST /api/claims/[id]/images - Upload image for a claim
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const { id } = await Promise.resolve(params);
+  const formData = await req.formData();
   try {
+    const file = formData.get('file') as File;
+    if (!file) {
+      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    }
+
     // Verify claim exists first
     const [claims] = await dbPool.execute('SELECT claim_id FROM claims WHERE claim_id = ?', [id]);
     const claimExists = (claims as any[]).length > 0;
     
     if (!claimExists) {
-      // Create a new claim if one doesn't exist with default values
+      // Validate form data for new claim
+      const formFields = {
+        customerName: formData.get('customerName') as string,
+        email: formData.get('email') as string,
+        phoneNumber: formData.get('phone') as string,
+        policyNumber: formData.get('policyNumber') as string,
+        incidentDate: formData.get('incidentDate') as string,
+        incidentType: formData.get('incidentType') as string,
+        description: formData.get('description') as string,  
+        vehicleBrand: formData.get('vehicleBrand') as string,
+        vehicleType: formData.get('vehicleType') as string,
+        // estimatedCost: formData.get('estimatedCost')
+      };
+
+      // Log all form fields
+      console.log('Form Fields:', {
+        customerName: formFields.customerName,
+        email: formFields.email,
+        phoneNumber: formFields.phoneNumber,
+        policyNumber: formFields.policyNumber,
+        incidentDate: formFields.incidentDate,
+        incidentType: formFields.incidentType,
+        description: formFields.description,
+        vehicleBrand: formFields.vehicleBrand,
+        vehicleType: formFields.vehicleType,
+      });
+
+      // Validate all required fields are present
+      const missingFields = Object.entries(formFields)
+        .filter(([key, value]) => !value)
+        .map(([key]) => key);
+
+      if (missingFields.length > 0) {
+        console.log(formFields.customerName, formFields.email, formFields.phoneNumber, formFields.policyNumber, formFields.incidentDate, formFields.description, formFields.vehicleType)
+        return NextResponse.json({ 
+          error: `Missing required fields: ${missingFields.join(', ')}`,
+          fields: formFields
+        }, { status: 400 });
+      }
+
+      // Create a new claim with default values
       const [statusRows] = await dbPool.execute(
         'SELECT status_id FROM claim_status WHERE status_name = "pending"'
       );
       const statusId = (statusRows as any[])[0].status_id;
 
-      const [vehicleTypeRows] = await dbPool.execute(
-        'SELECT type_id FROM vehicle_types WHERE type_name = "4_wheeler"'
-      );
-      const vehicleTypeId = (vehicleTypeRows as any[])[0].type_id;
-
-      const [incidentTypeRows] = await dbPool.execute(
-        'SELECT type_id FROM incident_types WHERE type_name = "vehicle_accident"'
-      );
-      const incidentTypeId = (incidentTypeRows as any[])[0].type_id;
-
-      // Validate policy number format
-      const policyNumber = `POL-${id.padStart(8, '0')}`;
+      // Parse numeric fields after validation
+      // const vehicleTypeId = parseInt(formFields.vehicleTypeId as string);
+      // const incidentTypeId = parseInt(formFields.incidentTypeId as string);
+      // const estimatedCost = parseFloat(formFields.estimatedCost as string) || 0;
       
-      // Get current timestamp for consistent date handling
+      // Check if vehicleTypeId and incidentTypeId are valid IDs from their respective tables
+      const [vehicleTypes] = await dbPool.execute('SELECT type_id FROM vehicle_types WHERE type_name = ?', [formFields.vehicleType]);
+      const [incidentTypes] = await dbPool.execute('SELECT type_id FROM incident_types WHERE type_name = ?', [formFields.incidentType]);
+
+      console.log(vehicleTypes, incidentTypes)
+      if ((vehicleTypes as any[]).length === 0 || (incidentTypes as any[]).length === 0) {
+        return NextResponse.json({ 
+          error: 'Invalid vehicle type or incident type ID. Please select valid options.',
+          fields: formFields
+        }, { status: 400 });
+      }
+
+      // const policyNumber = `POL-${id.padStart(8, '0')}`;
       const currentTimestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
       
       const [result] = await dbPool.execute(
@@ -43,6 +93,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           phone_number, 
           vehicle_type_id, 
           vehicle_brand, 
+          vehicle_description,
           incident_type_id, 
           incident_date, 
           status_id, 
@@ -50,22 +101,24 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           damage_photo_url,
           created_at,
           updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE updated_at = VALUES(updated_at)`,
         [
           id,
           id,
-          'Temporary User',
-          policyNumber,
-          'temp@example.com',
-          '0000000000',
-          vehicleTypeId,
-          'Unknown',
-          incidentTypeId,
-          currentTimestamp,
+          formFields.customerName,
+          formFields.policyNumber,
+          formFields.email,
+          formFields.phoneNumber,
+          (vehicleTypes as any[])[0].type_id,
+          formFields.vehicleBrand,
+          formFields.description || '',
+          (incidentTypes as any[])[0].type_id,
+          formFields.incidentDate,
           statusId,
           0,
-          '',
+          //estimatedCost,
+          `https://${process.env.S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/claims/${id}/image.png`,
           currentTimestamp,
           currentTimestamp
         ]
@@ -74,12 +127,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       if (!result) {
         return NextResponse.json({ error: 'Failed to create claim' }, { status: 500 });
       }
-    }
-
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
-    if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
