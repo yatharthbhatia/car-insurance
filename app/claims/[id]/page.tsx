@@ -154,10 +154,12 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
             <FileText className="mr-2 h-4 w-4" />
             Export PDF
           </Button>
-          <Button>
-            <DollarSign className="mr-2 h-4 w-4" />
-            Process Payment
-          </Button>
+          <Link href={`/claims/${claim.id}/payment`}>
+            <Button>
+              <DollarSign className="mr-2 h-4 w-4" />
+              Process Payment
+            </Button>
+          </Link>
         </div>
       </div>
 
