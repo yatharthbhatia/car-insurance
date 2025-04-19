@@ -37,7 +37,7 @@ CREATE TABLE claims (
     incident_type_id INT NOT NULL,
     incident_date DATE NOT NULL,
     status_id INT NOT NULL,
-    estimated_cost DECIMAL(10, 2) NOT NULL,
+    -- estimated_cost DECIMAL(10, 2) NOT NULL,
     damage_photo_url VARCHAR(255) NOT NULL,
     result_photo_url VARCHAR(255),
     damage_assessment JSON,

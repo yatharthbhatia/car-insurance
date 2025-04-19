@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
         c.vehicle_brand as vehicleBrand,
         cs.status_name as status,
         c.created_at as createdAt,
-        c.estimated_cost as estimatedCost,
+        c.damage_estimated_cost as estimatedCost,
         c.damage_photo_url as damagePhotoUrl
       FROM claims c
       LEFT JOIN incident_types it ON c.incident_type_id = it.type_id

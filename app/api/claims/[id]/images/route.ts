@@ -96,12 +96,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           vehicle_description,
           incident_type_id, 
           incident_date, 
-          status_id, 
-          estimated_cost, 
+          status_id,  
           damage_photo_url,
           created_at,
           updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE updated_at = VALUES(updated_at)`,
         [
           id,
@@ -116,8 +115,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           (incidentTypes as any[])[0].type_id,
           formFields.incidentDate,
           statusId,
-          0,
-          //estimatedCost,
           `https://${process.env.S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/claims/${id}/image.png`,
           currentTimestamp,
           currentTimestamp
