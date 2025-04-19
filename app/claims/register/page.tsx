@@ -520,6 +520,19 @@ export default function RegisterPage() {
           </Tabs>
         </form>
       </Card>
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-[300px]">
+            <CardContent className="pt-6 text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+              <p className="text-lg font-medium mb-2">Processing Claim</p>
+              <p className="text-sm text-muted-foreground">
+                Our AI is analyzing your claim details...
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
