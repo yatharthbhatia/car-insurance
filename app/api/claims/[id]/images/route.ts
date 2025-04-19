@@ -140,6 +140,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       [id, s3Url, `claims/${id}`, fileName]
     );
 
+    // Use damage detection utility
+    try {
+      const { detectDamage } = await import('@/lib/utils/damage-detection');
+      await detectDamage(id, s3Url);
+    } catch (error) {
+      console.error('Error in damage detection:', error);
+    }
+
     return NextResponse.json({ success: true, url: s3Url })
   } catch (error) {
     console.error('Error uploading image:', error);
