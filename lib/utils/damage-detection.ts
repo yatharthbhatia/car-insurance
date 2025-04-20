@@ -56,9 +56,10 @@ export async function detectDamage(claimId: string, imageUrl: string): Promise<D
         damage_estimated_cost = ?,
         damage_repair_time = ?,
         damage_notes = ?,
-        damage_assessment = ?
+        damage_assessment = ?,
+        result_photo_url = ?
       WHERE claim_id = ?`,
-      [assessment.severity, assessment.estimatedCost, assessment.repairTime, assessment.notes, JSON.stringify(assessment), claimId]
+      [assessment.severity, assessment.estimatedCost, assessment.repairTime, assessment.notes, JSON.stringify(assessment), `https://${process.env.S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/claims/${claimId}/result.jpg`, claimId]
     );
 
     return assessment;
