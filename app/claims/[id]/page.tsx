@@ -300,7 +300,7 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
                               <CardTitle className="text-sm font-medium text-muted-foreground">Repair Time</CardTitle>
                             </CardHeader>
                             <CardContent>
-                              <p className="text-2xl font-bold">{claim.damageAssessment.repairTime} days</p>
+                              <p className="text-2xl font-bold">{claim.damageAssessment.repairTime}</p>
                             </CardContent>
                           </Card>
                         </div>

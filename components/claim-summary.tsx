@@ -139,7 +139,7 @@ export function ClaimSummary({ claim, buttonVariant = "outline", buttonSize = "s
                     {claim.damageAssessment.estimatedCost.toLocaleString()}
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Repair Time:</span> {claim.damageAssessment.repairTime} days
+                    <span className="text-muted-foreground">Repair Time:</span> {claim.damageAssessment.repairTime}
                   </div>
                 </div>
                 {claim.damageAssessment.notes && (

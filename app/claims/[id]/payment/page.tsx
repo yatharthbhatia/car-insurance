@@ -139,7 +139,7 @@ export default function PaymentPage({ params }: { params: { id: string } }) {
                 <div className="text-muted-foreground">Severity:</div>
                 <div>{claim.damageAssessment?.severity ?? 'N/A'}</div>
                 <div className="text-muted-foreground">Repair Time:</div>
-                <div>{claim.damageAssessment?.repairTime ?? 0} days</div>
+                <div>{claim.damageAssessment?.repairTime ?? 0}</div>
               </div>
             </div>
 

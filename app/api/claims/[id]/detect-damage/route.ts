@@ -3,7 +3,7 @@ import { detectDamage } from '@/lib/utils/damage-detection';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const claimId = params.id;
+    const { id: claimId } = await Promise.resolve(params);
     const { image_url } = await request.json();
 
     if (!image_url) {

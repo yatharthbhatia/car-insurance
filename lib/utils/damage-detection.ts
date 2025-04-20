@@ -1,7 +1,7 @@
 import { dbPool } from '@/lib/db/config';
 
 interface DamageAssessment {
-  severity: 'low' | 'medium' | 'high' | 'unknown';
+  severity: string;
   estimatedCost: number;
   repairTime: string;
   notes: string;
@@ -45,7 +45,7 @@ export async function detectDamage(claimId: string, imageUrl: string): Promise<D
     const assessment: DamageAssessment = {
       severity: ['low', 'medium', 'high'].includes(detectionResult.severity) ? detectionResult.severity : 'unknown',
       estimatedCost: typeof detectionResult.total_estimated_cost === 'number' ? detectionResult.total_estimated_cost : 0,
-      repairTime: detectionResult.repair_time || '5-7 days',
+      repairTime: detectionResult.repair_time_range || '5-7 days',
       notes: `Detected ${detectionResult.damaged_parts_count || 0} damaged parts`,
       damagedPartsCount: typeof detectionResult.damaged_parts_count === 'number' ? detectionResult.damaged_parts_count : 0
     };

@@ -70,19 +70,8 @@ export default function RegisterPage() {
       // Generate a unique 12-digit claim ID
       const claimId = generateClaimId();
 
-      // Simulate AI processing delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Simulate AI damage assessment
-      const damageAssessment = {
-        severity: ["Low", "Medium", "High", "Critical"][Math.floor(Math.random() * 4)],
-        estimatedCost: Math.floor(Math.random() * 10000) + 500,
-        repairTime: Math.floor(Math.random() * 30) + 1,
-        notes: "AI-generated assessment based on uploaded image.",
-      };
-
-      // Upload image to S3 if a file is selected
       let imageUrl = null
+      let damageAssessment = null;
       if (selectedFile) {
         try {
           const formData = new FormData()
@@ -113,9 +102,23 @@ export default function RegisterPage() {
           }
 
           imageUrl = result.url
+
+          const detectionResponse = await fetch(`/api/claims/${claimId}/detect-damage`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ image_url: imageUrl }),
+          });
+
+          if (!detectionResponse.ok) {
+            throw new Error('Failed to get damage assessment');
+          }
+
+          damageAssessment = await detectionResponse.json();
         } catch (error) {
-          console.error('Image upload error:', error)
-          alert(error instanceof Error ? error.message : 'Failed to upload image')
+          console.error('Image upload or assessment error:', error);
+          alert(error instanceof Error ? error.message : 'Failed to process image');
           setIsSubmitting(false)
           return
         }
