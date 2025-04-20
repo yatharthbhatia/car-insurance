@@ -238,26 +238,49 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
                 </TabsContent>
 
                 <TabsContent value="evidence" className="mt-0">
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="flex items-center mb-4">
                       <ImageIcon className="h-5 w-5 mr-2 text-primary" />
                       <h3 className="text-lg font-medium">Damage Evidence</h3>
                     </div>
 
-                    {claim.image ? (
-                      <div className="border rounded-md p-6 bg-muted/30">
-                        <img
-                          src={claim.image || "/placeholder.svg"}
-                          alt="Damage evidence"
-                          className="max-h-[400px] mx-auto object-contain rounded-md"
-                        />
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-4">Original Image</h4>
+                        {claim.image ? (
+                          <div className="border rounded-md p-6 bg-muted/30">
+                            <img
+                              src={claim.image || "/placeholder.svg"}
+                              alt="Original damage evidence"
+                              className="max-h-[400px] w-full object-contain rounded-md"
+                            />
+                          </div>
+                        ) : (
+                          <div className="text-center py-16 border rounded-md bg-muted/30">
+                            <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                            <p className="text-muted-foreground">No images uploaded for this claim</p>
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <div className="text-center py-16 border rounded-md bg-muted/30">
-                        <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                        <p className="text-muted-foreground">No images uploaded for this claim</p>
+
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-4">Model-Processed Result</h4>
+                        {claim.damageAssessment ? (
+                          <div className="border rounded-md p-6 bg-muted/30">
+                            <img
+                              src={`https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/claims/${id}/result.jpg`}
+                              alt="Model-processed damage assessment"
+                              className="max-h-[400px] w-full object-contain rounded-md"
+                            />
+                          </div>
+                        ) : (
+                          <div className="text-center py-16 border rounded-md bg-muted/30">
+                            <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                            <p className="text-muted-foreground">AI assessment not yet available</p>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </TabsContent>
 
