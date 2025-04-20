@@ -115,7 +115,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           (incidentTypes as any[])[0].type_id,
           formFields.incidentDate,
           statusId,
-          `https://${process.env.S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/claims/${id}/image.png`,
+          `https://${process.env.S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/claims/${id}/image.jpg`,
           currentTimestamp,
           currentTimestamp
         ]

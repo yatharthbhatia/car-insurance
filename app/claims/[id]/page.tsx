@@ -31,6 +31,8 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
   const router = useRouter()
   const [claim, setClaim] = useState<ClaimData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false)
+  const [isExportingPDF, setIsExportingPDF] = useState(false)
 
   useEffect(() => {
     const fetchClaim = () => {
@@ -51,6 +53,57 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
     if (claim) {
       const updatedClaim = updateClaimStatus(claim.id, newStatus)
       setClaim(updatedClaim)
+    }
+  }
+
+  const handleExportPDF = async () => {
+    if (!claim || isGeneratingReport || isExportingPDF) return
+    setIsExportingPDF(true)
+    try {
+      const response = await fetch(`/api/claims/${claim.id}/generate-report?send_email=true`, {
+        method: 'POST',
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate report')
+      }
+      const result = await response.json()
+      alert('Report has been sent to your email')
+    } catch (error) {
+      console.error('Error exporting PDF:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate report'
+      alert(errorMessage)
+    } finally {
+      setIsExportingPDF(false)
+    }
+  }
+
+  const handleGenerateReport = async (sendEmail: boolean) => {
+    if (!claim || isGeneratingReport || isExportingPDF) return
+    setIsGeneratingReport(true)
+    try {
+      const response = await fetch(`/api/claims/${claim.id}/generate-report?send_email=${sendEmail}`, {
+        method: 'POST',
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate report')
+      }
+      const result = await response.json()
+      
+      if (sendEmail) {
+        alert('Report has been sent to your email')
+      } else if (result.report_url) {
+        window.open(result.report_url, '_blank')
+      } else {
+        throw new Error('Report URL not found in response')
+      }
+    } catch (error) {
+      console.error('Error generating report:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate report'
+      alert(errorMessage)
+    } finally {
+      setIsGeneratingReport(false)
     }
   }
 
@@ -150,9 +203,9 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
           <p className="text-muted-foreground">Created on {formatDate(claim.createdAt)}</p>
         </div>
         <div className="mt-4 md:mt-0 flex space-x-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExportPDF} disabled={isGeneratingReport || isExportingPDF}>
             <FileText className="mr-2 h-4 w-4" />
-            Export PDF
+            {isExportingPDF ? 'Exporting...' : 'Export PDF'}
           </Button>
           <Link href={`/claims/${claim.id}/payment`}>
             <Button>
@@ -399,9 +452,9 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <ClaimSummary claim={claim} buttonVariant="outline" className="w-full justify-start" />
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => handleGenerateReport(false)} disabled={isGeneratingReport || isExportingPDF}>
                 <FileText className="mr-2 h-4 w-4" />
-                Generate Report
+                {isGeneratingReport ? 'Generating...' : 'Generate Report'}
               </Button>
               <Button variant="destructive" className="w-full">
                 Delete Claim
