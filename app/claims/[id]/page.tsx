@@ -107,6 +107,28 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
     }
   }
 
+  const handleDelete = async () => {
+    if (!claim) return
+    if (window.confirm('Are you sure you want to delete this claim? This action cannot be undone.')) {
+      try {
+        const response = await fetch(`/api/claims/${claim.id}`, {
+          method: 'DELETE',
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to delete claim')
+        }
+
+        router.push('/claims')
+      } catch (error) {
+        console.error('Error deleting claim:', error)
+        const errorMessage = error instanceof Error ? error.message : 'Failed to delete claim'
+        alert(errorMessage)
+      }
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[50vh]">
@@ -456,7 +478,7 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
                 <FileText className="mr-2 h-4 w-4" />
                 {isGeneratingReport ? 'Generating...' : 'Generate Report'}
               </Button>
-              <Button variant="destructive" className="w-full">
+              <Button variant="destructive" className="w-full" onClick={handleDelete}>
                 Delete Claim
               </Button>
             </CardFooter>

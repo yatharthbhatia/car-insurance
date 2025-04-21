@@ -64,3 +64,16 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Failed to fetch claim' }, { status: 500 });
   }
 }
+
+// DELETE /api/claims/[id] - Delete a claim by ID
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = await Promise.resolve(params);
+  try {
+    // Execute SQL DELETE query
+    const [result] = await dbPool.execute('DELETE FROM claims WHERE claim_id = ?', [id]);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting claim:', error);
+    return NextResponse.json({ error: 'Failed to delete claim' }, { status: 500 });
+  }
+}
