@@ -21,7 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { getClaimById, updateClaimStatus } from "@/lib/utils"
-import type { ClaimData } from "@/lib/types"
+import type { ClaimData, ClaimStatus } from "@/lib/types"
 
 // Import the ClaimSummary component at the top of the file
 import { ClaimSummary } from "@/components/claim-summary"
@@ -33,26 +33,58 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
   const [loading, setLoading] = useState(true)
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
   const [isExportingPDF, setIsExportingPDF] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    const fetchClaim = () => {
-      const claimData = getClaimById(id)
-      if (claimData) {
-        setClaim(claimData)
-      } else {
-        // Claim not found, redirect to history page
+    const fetchClaim = async () => {
+      try {
+        const [claimData, adminStatus] = await Promise.all([
+          getClaimById(id),
+          fetch('/api/auth/check-admin').then(res => res.json())
+        ])
+        
+        if (claimData) {
+          setClaim(claimData)
+          setIsAdmin(adminStatus.isAdmin)
+        } else {
+          router.push("/history")
+        }
+      } catch (error) {
+        console.error('Error:', error)
         router.push("/history")
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     fetchClaim()
   }, [id, router])
 
-  const handleStatusChange = (newStatus: string) => {
-    if (claim) {
-      const updatedClaim = updateClaimStatus(claim.id, newStatus)
+  const handleStatusChange = async (newStatus: string) => {
+    if (!claim) return
+    
+    try {
+      const response = await fetch(`/api/claims/${claim.id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: newStatus,
+          actionBy: 'admin',
+          notes: `Status changed to ${newStatus}`
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update status')
+      }
+
+      const { claim: updatedClaim } = await response.json()
       setClaim(updatedClaim)
+    } catch (error) {
+      console.error('Error updating claim status:', error)
+      alert('Failed to update claim status')
     }
   }
 
@@ -145,11 +177,11 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
     })
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
+  const getStatusIcon = (status: ClaimStatus) => {
+    switch (status) {
       case "new":
         return <AlertCircle className="h-5 w-5 text-blue-500" />
-      case "in progress":
+      case "in_progress":
         return <Clock className="h-5 w-5 text-yellow-500" />
       case "approved":
         return <CheckCircle2 className="h-5 w-5 text-green-500" />
@@ -162,11 +194,11 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+  const getStatusColor = (status: ClaimStatus) => {
+    switch (status) {
       case "new":
         return "bg-blue-500"
-      case "in progress":
+      case "in_progress":
         return "bg-yellow-500"
       case "approved":
         return "bg-green-500"
@@ -412,43 +444,46 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
                 {getStatusIcon(claim.status)}
                 <div>
                   <p className="font-medium">Current Status</p>
-                  <p className="text-muted-foreground">{claim.status}</p>
+                  <p className="text-muted-foreground capitalize">{claim.status}</p>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium">Change Status</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant={claim.status === "In Progress" ? "default" : "outline"}
-                    onClick={() => handleStatusChange("In Progress")}
-                    className="w-full"
-                  >
-                    In Progress
-                  </Button>
-                  <Button
-                    variant={claim.status === "Approved" ? "default" : "outline"}
-                    onClick={() => handleStatusChange("Approved")}
-                    className="w-full"
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    variant={claim.status === "Rejected" ? "default" : "outline"}
-                    onClick={() => handleStatusChange("Rejected")}
-                    className="w-full"
-                  >
-                    Reject
-                  </Button>
-                  <Button
-                    variant={claim.status === "Pending" ? "default" : "outline"}
-                    onClick={() => handleStatusChange("Pending")}
-                    className="w-full"
-                  >
-                    Pending
-                  </Button>
+              {/* Status change buttons only shown for admin users */}
+              {isAdmin && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Change Status</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant={claim.status === "in_progress" ? "default" : "outline"}
+                      onClick={() => handleStatusChange("in_progress")}
+                      className="w-full"
+                    >
+                      In Progress
+                    </Button>
+                    <Button
+                      variant={claim.status === "approved" ? "default" : "outline"}
+                      onClick={() => handleStatusChange("approved")}
+                      className="w-full"
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      variant={claim.status === "rejected" ? "default" : "outline"}
+                      onClick={() => handleStatusChange("rejected")}
+                      className="w-full"
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      variant={claim.status === "pending" ? "default" : "outline"}
+                      onClick={() => handleStatusChange("pending")}
+                      className="w-full"
+                    >
+                      Pending
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <ClaimSummary claim={claim} buttonVariant="outline" className="w-full justify-start" />

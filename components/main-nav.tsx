@@ -4,12 +4,14 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Shield, FileText, PlusCircle, Search, LayoutDashboard } from "lucide-react"
+import { Shield, FileText, PlusCircle, Search, LayoutDashboard, Settings } from "lucide-react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CarParking02Icon } from "@hugeicons/core-free-icons"
 
 export function MainNav() {
   const pathname = usePathname()
+
+  const isAdmin = false // TODO: Replace with actual auth check
 
   const routes = [
     {
@@ -35,7 +37,15 @@ export function MainNav() {
       label: "Search",
       icon: <Search className="h-4 w-4 mr-2" />,
       active: pathname === "/search",
-    }
+    },
+    ...(isAdmin ? [
+      {
+        href: "/admin",
+        label: "Admin",
+        icon: <Settings className="h-4 w-4 mr-2" />,
+        active: pathname === "/admin",
+      }
+    ] : [])
   ]
 
   return (

@@ -17,3 +17,14 @@ CREATE TABLE IF NOT EXISTS claim_images (
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (claim_id) REFERENCES claims(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS claim_actions (
+    action_id INT AUTO_INCREMENT PRIMARY KEY,
+    claim_id VARCHAR(12) NOT NULL,
+    old_status VARCHAR(20) NOT NULL,
+    new_status VARCHAR(20) NOT NULL,
+    action_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    action_by VARCHAR(50) NOT NULL,
+    notes TEXT,
+    FOREIGN KEY (claim_id) REFERENCES claims(id) ON DELETE CASCADE
+);

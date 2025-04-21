@@ -23,6 +23,9 @@ CREATE TABLE incident_types (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
+CREATE TYPE claim_status AS ENUM ('new', 'in_progress', 'approved', 'rejected', 'pending');
+
 -- Claims table
 CREATE TABLE claims (
     claim_id CHAR(12) PRIMARY KEY,
@@ -38,6 +41,7 @@ CREATE TABLE claims (
     incident_date DATE NOT NULL,
     status_id INT NOT NULL,
     report_url VARCHAR(255),
+    status claim_status DEFAULT 'pending',
     -- estimated_cost DECIMAL(10, 2) NOT NULL,
     damage_photo_url VARCHAR(255) NOT NULL,
     result_photo_url VARCHAR(255),

@@ -5,6 +5,8 @@ export interface DamageAssessment {
   notes: string
 }
 
+export type ClaimStatus = 'new' | 'in_progress' | 'approved' | 'rejected' | 'pending';
+
 export interface ClaimData {
   id: string
   customerName: string
@@ -14,9 +16,10 @@ export interface ClaimData {
   incidentDate: string
   incidentType: string
   description: string
-  vehicleBrand?: string // Add this new optional field
+  vehicleBrand?: string
   image: string | null
-  status: string
+  status: ClaimStatus
   createdAt: string
   damageAssessment?: DamageAssessment
+  estimatedCost?: number
 }

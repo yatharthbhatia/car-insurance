@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { ClaimStatus } from '@/lib/types';
 
 interface Claim {
   id: string;
@@ -78,20 +79,20 @@ export default function ClaimsPage() {
     );
   }
 
-const getStatusColor = (status: string) => {
-  switch (status.toLowerCase()) {
+const getStatusColor = (status: ClaimStatus) => {
+  switch (status) {
     case "new":
-      return "bg-blue-500"
-    case "in progress":
-      return "bg-yellow-500"
+      return "bg-blue-500 text-white"
+    case "in_progress":
+      return "bg-yellow-500 text-white"
     case "approved":
-      return "bg-green-500"
+      return "bg-green-500 text-white"
     case "rejected":
-      return "bg-red-500"
+      return "bg-red-500 text-white"
     case "pending":
-      return "bg-orange-500"
+      return "bg-orange-500 text-white"
     default:
-      return "bg-gray-500"
+      return "bg-gray-500 text-white"
   }
 };
 
@@ -112,7 +113,7 @@ const getStatusColor = (status: string) => {
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xl font-semibold pb-2">{claim.customerName}</CardTitle>
               <Badge
-                className={`${getStatusColor(claim.status)} text-slate-400`}
+                className={getStatusColor(claim.status as ClaimStatus)}
               >
                 {claim.status}
               </Badge>

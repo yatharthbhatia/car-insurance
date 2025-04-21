@@ -1,4 +1,4 @@
-import type { ClaimData } from "./types"
+import type { ClaimData, ClaimStatus } from "./types"
 
 // Generate a random 12-digit claim ID
 export function generateClaimId(): string {
@@ -14,10 +14,29 @@ export function generateClaimId(): string {
 }
 
 // Save claim data to local storage
-export function saveClaimToStorage(claim: ClaimData): void {
+export async function saveClaimToStorage(claim: ClaimData): Promise<void> {
+  // Save to local storage
   const claims = getClaimsFromStorage()
   claims.push(claim)
   localStorage.setItem("insuranceClaims", JSON.stringify(claims))
+
+  // Save to database
+  try {
+    const response = await fetch('/api/claims', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(claim)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to save claim to database')
+    }
+  } catch (error) {
+    console.error('Error saving claim to database:', error)
+    throw error
+  }
 }
 
 // Get all claims from local storage
@@ -35,7 +54,7 @@ export function getClaimById(id: string): ClaimData | null {
 }
 
 // Update claim status
-export function updateClaimStatus(id: string, newStatus: string): ClaimData | null {
+export async function updateClaimStatus(id: string, newStatus: ClaimStatus): Promise<ClaimData | null> {
   const claims = getClaimsFromStorage()
   const claimIndex = claims.findIndex((claim) => claim.id === id)
 
@@ -43,6 +62,24 @@ export function updateClaimStatus(id: string, newStatus: string): ClaimData | nu
 
   claims[claimIndex].status = newStatus
   localStorage.setItem("insuranceClaims", JSON.stringify(claims))
+
+  // Update database
+  try {
+    const response = await fetch(`/api/claims/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: newStatus })
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to update claim status in database')
+    }
+  } catch (error) {
+    console.error('Error updating claim status in database:', error)
+    throw error
+  }
 
   return claims[claimIndex]
 }

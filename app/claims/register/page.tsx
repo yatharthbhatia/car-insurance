@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, Upload, User, Calendar, ImageIcon, CheckCircle2, ArrowRight } from "lucide-react"
 import { generateClaimId, saveClaimToStorage, getClaimById } from "@/lib/utils"
+import { ClaimStatus } from "@/lib/types"
 import { claimFormSchema, type ClaimFormData } from "@/lib/validations/claim"
 
 export default function RegisterPage() {
@@ -129,7 +130,7 @@ export default function RegisterPage() {
         id: claimId,
         ...data,
         image: imageUrl,
-        status: "New",
+        status: "new" as ClaimStatus,
         createdAt: new Date().toISOString(),
         damageAssessment,
       };
