@@ -135,7 +135,7 @@ export function ClaimSummary({ claim, buttonVariant = "outline", buttonSize = "s
                     <span className="text-muted-foreground">Severity:</span> {claim.damageAssessment.severity}
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Estimated Cost:</span> $
+                    <span className="text-muted-foreground">Estimated Cost:</span> ₹
                     {claim.damageAssessment.estimatedCost.toLocaleString()}
                   </div>
                   <div>

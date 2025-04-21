@@ -105,7 +105,7 @@ export default function PaymentPage({ params }: { params: { id: string } }) {
                   </>
                 ) : (
                   <>
-                    Receive Payout ${claim.damageAssessment?.estimatedCost?.toLocaleString() ?? '0'}
+                    Receive Payout ₹{claim.damageAssessment?.estimatedCost?.toLocaleString() ?? '0'}
                   </>
                 )}
               </Button>
@@ -146,7 +146,7 @@ export default function PaymentPage({ params }: { params: { id: string } }) {
             <div className="border-t pt-4">
               <div className="flex justify-between items-center text-lg font-medium">
                 <span>Payout Amount:</span>
-                <span>${claim.damageAssessment?.estimatedCost?.toLocaleString() ?? '0'}</span>
+                <span>₹{claim.damageAssessment?.estimatedCost?.toLocaleString() ?? '0'}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
                 This amount includes all repair costs and service charges as estimated by our AI assessment system.

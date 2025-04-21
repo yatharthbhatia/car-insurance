@@ -134,7 +134,7 @@ const getStatusColor = (status: string) => {
                 <div>
                   <p className="text-sm font-medium text-gray-500">Estimated Cost</p>
                   <p className="text-base font-semibold text-green-600">
-                    ${claim.estimatedCost?.toLocaleString() || 'N/A'}
+                    ₹{claim.estimatedCost?.toLocaleString() || 'N/A'}
                   </p>
                 </div>
               </div>

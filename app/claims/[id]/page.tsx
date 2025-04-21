@@ -366,7 +366,7 @@ export default function ClaimDetailsPage({ params }: { params: Promise<{ id: str
                             </CardHeader>
                             <CardContent>
                               <p className="text-2xl font-bold">
-                                ${claim.damageAssessment.estimatedCost.toLocaleString()}
+                                ₹{claim.damageAssessment.estimatedCost.toLocaleString()}
                               </p>
                             </CardContent>
                           </Card>

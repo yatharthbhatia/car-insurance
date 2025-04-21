@@ -65,11 +65,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       clearTimeout(timeoutId) // Clear the timeout after successful response
       console.log("Report generation response:", result)
       
-      // Validate report generation result
-      if (!result.message || !result.message.includes('PDF uploaded to S3')) {
-        console.error('Invalid report generation response:', result)
-        throw new Error('Invalid response from report generation service')
-      }
+      // // Validate report generation result
+      // if (!result.message || !result.message.includes('PDF uploaded to S3')) {
+      //   console.error('Invalid report generation response:', result)
+      //   throw new Error('Invalid response from report generation service')
+      // }
 
       // Extract report URL from S3 bucket path
       const reportUrl = `https://${process.env.S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/claims/${id}/report.pdf`

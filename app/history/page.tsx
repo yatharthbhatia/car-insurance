@@ -51,7 +51,7 @@ function ClaimsTable({
                 </span>
               </td>
               <td className="py-3 px-4 text-sm sm:text-base">
-                ${claim.damageAssessment?.estimatedCost.toLocaleString()}
+                ₹{claim.damageAssessment?.estimatedCost.toLocaleString()}
               </td>
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end space-x-2">
