@@ -35,7 +35,7 @@ export function MainNav() {
       label: "Search",
       icon: <Search className="h-4 w-4 mr-2" />,
       active: pathname === "/search",
-    },
+    }
   ]
 
   return (
@@ -43,7 +43,7 @@ export function MainNav() {
       <div className="container flex flex-col md:flex-row h-auto md:h-16 items-center px-4">
         <div className="mx-auto mr-8 flex">
           <Link href="/" className="flex items-center space-x-2">
-            <HugeiconsIcon icon={CarParking02Icon} className="pb-1 h-[30] w-[29] text-primary" />
+            <HugeiconsIcon icon={CarParking02Icon} className="pb-1 h-auto w-auto text-primary" />
             {/* <Shield className="h-6 w-6 text-primary" /> */}
             <span className="font-bold text-xl">InsureClaim</span>
           </Link>
